@@ -10,7 +10,7 @@ from datetime import datetime
 #/home/mazya/.conda/envs/yaniv/bin/python
 
 if __name__ == "__main__":
-    pram = {"snap":300, "teta_range":[-60,60], "D":3}
+    pram = {"snap":200, "teta_range":[-60,60], "D":3}
     my_parameters = prameters_class(8, 0, 100, pram["snap"], pram["teta_range"], pram["D"])
 
     my_dict = {"Generate new data": True,
