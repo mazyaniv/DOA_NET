@@ -3,17 +3,7 @@ import torch.nn as nn
 import numpy as np
 from files.data_handler import *
 from files.functions import *
-def compute_rmse(model,tensor1, tensor2): ####TODO####
-
-    z = torch.tensor(tensor1, requires_grad=True,dtype=torch.float32).transpose(0, 1)
-    z = model(z)
-    z = z.detach().numpy()
-    z = np.argsort(z,1)[:,::-1]
-    z = np.radians(z[:,:D].squeeze()) #sort if D>1
-    z = torch.tensor(z.copy().squeeze(), requires_grad=True,dtype=torch.float32)
-    s = torch.Tensor(np.radians(tensor2)).squeeze()
-    mse = torch.mean((z - s)**2)
-    return torch.sqrt(mse)
+R2D = 180 / np.pi
 
 def MSE_loss(model,tensor1, tensor2):
     z = torch.tensor(tensor1, requires_grad=True,dtype=torch.float32).transpose(0, 1)
@@ -26,15 +16,11 @@ def Loss(doa_predictions,doa):
     rmspe = []
     for iter in range(doa_predictions.shape[0]):
         rmspe_list = []
-        batch_predictions = doa_predictions[iter].to(device)
-        targets = doa[iter].to(device)
-        prediction_perm = permute_prediction(batch_predictions).to(device)
-        for prediction in prediction_perm:
-            # Calculate error with modulo pi
-            error = (((prediction - targets) + (np.pi / 2)) % np.pi) - np.pi / 2
-            # Calculate RMSE over all permutations
-            rmspe_val = (1 / np.sqrt(len(targets))) * torch.linalg.norm(error)
-            rmspe_list.append(rmspe_val)
+        batch_predictions = torch.flip(torch.sort(doa_predictions[iter].to(device))[0],[0])
+        targets = torch.flip(torch.sort(doa[iter].to(device))[0],[0])
+        error = (((batch_predictions - targets) + (np.pi / 2)) % np.pi) - np.pi / 2
+        rmspe_val = (1 / np.sqrt(len(targets))) * torch.linalg.norm(error)
+        rmspe_list.append(rmspe_val)
         rmspe_tensor = torch.stack(rmspe_list, dim = 0)
         # Choose minimal error from all permutations
         rmspe_min = torch.min(rmspe_tensor)

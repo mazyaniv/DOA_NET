@@ -8,19 +8,20 @@ from files.functions import *
 from pathlib import Path
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-def generate_data(my_parameters,save_datasets: bool = False,file_path: Path = Path.cwd(),phase: str="train"):
+def generate_data(array: array_class,save_datasets: bool = False,file_path: Path = Path.cwd(),phase: str="train"):
     generic_dataset = []
     model_dataset = []
-    for i in tqdm(range(my_parameters.J)):
-        if my_parameters.D == 1:
-            teta = np.random.randint(my_parameters.teta_range[0], my_parameters.teta_range[1], size=my_parameters.D)
+    for i in tqdm(range(array.J)):
+        if array.D == 1:
+            teta = np.random.randint(array.teta_range[0], array.teta_range[1], size=array.D)
         else:
             while True:
-                teta = np.random.randint(my_parameters.teta_range[0], my_parameters.teta_range[1], size=my_parameters.D)
+                teta = np.random.randint(array.teta_range[0], array.teta_range[1], size=array.D)
                 if teta[0] != teta[1]:
                     break
             teta = np.radians(np.sort(teta)[::-1])
-        sample = observ(teta, my_parameters.M, 10, my_parameters.snap) #quantize
+        sample = observ(teta, array.M, array.SNR, array.snap) #quantize
+
         X =torch.tensor(sample, dtype=torch.complex64)
         X_model = create_autocorrelation_tensor(X, 8).to(torch.float)
         Y = torch.tensor(teta.copy(), dtype=torch.float64)

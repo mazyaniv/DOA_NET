@@ -1,14 +1,15 @@
 import numpy as np
 import torch
 
-class prameters_class():
-    def __init__(self, M,N_q,J,snapshot,teta_range,D):
+class array_class():
+    def __init__(self, M,N_q,J,snapshot,teta_range,D,SNR=10):
         self.M = M
         self.N_q = N_q
         self.J = J #DATA SIZE
         self.snap = snapshot
         self.teta_range = teta_range
         self.D = D
+        self.SNR = SNR
 class train_prameters():
     def __init__(self, test_size,batch,epoch,learning_rate, weight_decay=1e-9):
         self.test_size = test_size
