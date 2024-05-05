@@ -24,23 +24,6 @@ def observ(teta,M,SNR,snap):
     x_a_samp = (A @ s_samp) + n_samp
     return x_a_samp
 
-# def observ(teta,M,SNR,snap):
-#     A = Matrix_class(M, teta).matrix()
-#     M = A.shape[0]
-#     D = A.shape[1]
-#
-#     real_s = np.random.normal(0, 1 / math.sqrt(2), (D, snap))
-#     im_s = np.random.normal(0, 1 / math.sqrt(2), (D, snap))
-#     s = real_s + 1j * im_s
-#
-#     s_samp = s.reshape(D, snap)
-#     real_n = np.random.normal(0, math.sqrt((10 ** (-SNR / 10))) / math.sqrt(2), (M, snap))
-#     im_n = np.random.normal(0, math.sqrt((10 ** (-SNR / 10))) / math.sqrt(2), (M, snap))
-#     n = real_n + 1j * im_n
-#     n_samp = n.reshape(M, snap)
-#     x_a_samp = (A @ s_samp) + n_samp
-#     return x_a_samp
-
 def quantize_part(A,P,thresh=0):
         mask = np.zeros(np.shape(A),dtype=complex)
         mask[:P,:] = (1/math.sqrt(2))*(np.sign(A[:P,:].real-(thresh))+(1j*(np.sign(A[:P,:].imag-((thresh))))))

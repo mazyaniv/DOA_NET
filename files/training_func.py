@@ -27,13 +27,15 @@ def train(training_parameters,train_data,model,plot_curves: bool = True,saving_p
     # Train the model
     model, loss_train_list, loss_valid_list = train_model(training_parameters,train_data,model)
     # Save models best weights
-    torch.save(model.state_dict(), saving_path/Path(dt_string_for_save))
+    file_name = f"{len(train_data)} samples "+ str(Path(dt_string_for_save))
+    torch.save(model.state_dict(), saving_path/file_name)
     # Plot learning and validation loss curves
     if plot_curves:
         plot_learning_curve(list(range(training_parameters.epoch)), loss_train_list, loss_valid_list)
     return model, loss_train_list, loss_valid_list
 
 def train_model(training_params,train_dataset,model,model_name=None,checkpoint_path=None):
+    print(type(model))
     train_dataset, valid_dataset = train_test_split(train_dataset, test_size=0.1, shuffle=True)
     train_dataset = torch.utils.data.DataLoader(train_dataset, batch_size=training_params.batch, shuffle=True,drop_last=False)
     valid_dataset = torch.utils.data.DataLoader(valid_dataset, batch_size=1, shuffle=False, drop_last=False)
@@ -81,7 +83,7 @@ def train_model(training_params,train_dataset,model,model_name=None,checkpoint_p
         # Update schedular
         schedular.step()
          # Calculate evaluation loss
-        valid_loss = evaluate_dnn_model(model,valid_dataset)
+        valid_loss = evaluate_dnn_model(valid_dataset,model)
         loss_valid_list.append(valid_loss)
         # Report results
         print("epoch : {}/{}, Train loss = {:.6f}, Validation loss = {:.6f}".format(epoch + 1, training_params.epoch, overall_train_loss, valid_loss))

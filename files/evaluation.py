@@ -12,8 +12,7 @@ def evaluate_dnn_model(dataset: list,model):
         for data in dataset:
             X, DOA = data
             test_length += DOA.shape[0]
-            # Convert observations and DoA to device
-            X = torch.unsqueeze(X, dim=0).to(device)
+            # X = torch.unsqueeze(X, dim=0).to(device)
             DOA = torch.unsqueeze(DOA, dim=0).to(device)
             # Get model output
             model_output = model(X)

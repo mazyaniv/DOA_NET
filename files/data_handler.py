@@ -8,7 +8,7 @@ from files.functions import *
 from pathlib import Path
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-def generate_data(array: array_class,save_datasets: bool = False,file_path: Path = Path.cwd(),phase: str="train"):
+def generate_data(array: array_class,save_datasets: bool = False,NN: bool = False,file_path: Path = Path.cwd(),phase: str="train_samples"):
     generic_dataset = []
     model_dataset = []
     for i in tqdm(range(array.J)):
@@ -20,34 +20,22 @@ def generate_data(array: array_class,save_datasets: bool = False,file_path: Path
                 if teta[0] != teta[1]:
                     break
             teta = np.radians(np.sort(teta)[::-1])
-        sample = observ(teta, array.M, array.SNR, array.snap) #quantize
+        sample = quantize_part(observ(teta, array.M, array.SNR, array.snap),array.N_q) #quantize
 
         X =torch.tensor(sample, dtype=torch.complex64)
-        X_model = create_autocorrelation_tensor(X, 8).to(torch.float)
         Y = torch.tensor(teta.copy(), dtype=torch.float64)
-        model_dataset.append((X_model, Y))
         generic_dataset.append((X, Y))
+        if NN:
+            X_model = create_autocorrelation_tensor(X, 8).to(torch.float)
+            model_dataset.append((X_model, Y))
 
     if save_datasets:
-        torch.save(obj=model_dataset, f=file_path / phase / 'data_train.npy')
-        torch.save(obj=generic_dataset, f=file_path / phase / 'data_train_generic.npy')
+        torch.save(obj=model_dataset, f=file_path / phase / f'data_{array.J}_samples_train.npy')
+        torch.save(obj=generic_dataset, f=file_path / phase / f'data_{array.J}_samples_train_generic.npy')
     return model_dataset, generic_dataset
 # ======================================================================================================================
 
 def autocorrelation_matrix(X: torch.Tensor, lag: int):
-    """
-    Computes the autocorrelation matrix for a given lag of the input samples.
-
-    Args:
-    -----
-        X (torch.Tensor): Samples matrix input with shape [N, T].
-        lag (int): The requested delay of the autocorrelation calculation.
-
-    Returns:
-    --------
-        torch.Tensor: The autocorrelation matrix for the given lag.
-
-    """
     Rx_lag = torch.zeros(X.shape[0], X.shape[0], dtype=torch.complex128).to(device)
     for t in range(X.shape[1] - lag):
         # meu = torch.mean(X,1)
@@ -61,24 +49,6 @@ def autocorrelation_matrix(X: torch.Tensor, lag: int):
 
 # def create_autocorrelation_tensor(X: torch.Tensor, tau: int) -> torch.Tensor:
 def create_autocorrelation_tensor(X: torch.Tensor, tau: int):
-    """
-    Returns a tensor containing all the autocorrelation matrices for lags 0 to tau.
-
-    Args:
-    -----
-        X (torch.Tensor): Observation matrix input with size (BS, N, T).
-        tau (int): Maximal time difference for the autocorrelation tensor.
-
-    Returns:
-    --------
-        torch.Tensor: Tensor containing all the autocorrelation matrices,
-                    with size (Batch size, tau, 2N, N).
-
-    Raises:
-    -------
-        None
-
-    """
     Rx_tau = []
     for i in range(tau):
         Rx_tau.append(autocorrelation_matrix(X, lag=i))

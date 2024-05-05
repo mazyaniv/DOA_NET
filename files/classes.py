@@ -32,8 +32,8 @@ class Matrix_class():
         return self.A
 
 class My_data():
-    def __init__(self, file_path):
-        self.data_train = torch.load(file_path/'data_train.npy')
+    def __init__(self, file_path,array):
+        self.data_train = torch.load(file_path/f'data_{array.J}_samples_train.npy')
         # self.data_test = np.load(file_path/'data_test.npy')
         # self.labels_test = np.load(file_path/'labels_test.npy')
 
