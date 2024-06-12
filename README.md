@@ -1,3 +1,3 @@
 # DOA Net
 
-In this project I deeply intrested in the ways to enhance model-based learning approach for improve DOA estimation performance using mixed resolution data. This has made with an insparation from [Arad Gast project](https://github.com/aradgast/DOA_NF)
+In this project, I am highly motivated to advance the model-based learning method for enhancing DOA estimation performance by utilizing mixed-resolution data. This concept draws inspiration from [Arad Gast's project] (https://github.com/aradgast/DOA_NF).
